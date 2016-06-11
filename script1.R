@@ -1,31 +1,68 @@
 require(XML)
 
+#Set working director as this files directory
+setwd(dirname(parent.frame(2)$ofile))
+
+#Directory to print output files to
 printDir <- "prints/"
-#xml.url <- "hml/HML_IND00087_3DL2.xml"
 
-output = 2;
 
-readHML <- function(hml.uri,metadataFile){
+#Main run function
+#Accepts a list of files, an output type (1 or 2), and a list of accepted loci
+run.parser <- function(files,output_type,accepted_loci){
+  
+  if(file.exists(paste0(printDir,"genos.txt")) && (output_type == 2)){
+    file.remove(paste0(printDir,"genos.txt"))
+  }
   
   
-  doc <- xmlTreeParse(hml.uri,useInternalNodes = TRUE)
-  sampleID <- strsplit(hml.uri,"_")[[1]][2]
-  glstring <- trimws(xpathApply(doc,"//glstring",xmlValue))
+  for(f in files) {
+    readHML(f,"data.txt",output_type,accepted_loci)
+  }
+  
+}
+
+
+#Parses an individual HML file, with same arguments as run function
+readHML <- function(file,data_file_name,output_type,accepted_loci){
+  
+  #Gets file path and name
+  hml.uri <- file.path(file)
+  hml.name <- basename(file)
+  
+  #Parses HML document into a DOM
+  doc <- xmlInternalTreeParse(hml.uri)
+  
+  #Finds locus and checks against accepted loci
   locus <- xmlAttrs(xpathApply(doc,"//sbt-ngs")[[1]])
-
+  if(!(locus %in% accepted_loci)){
+    return()
+  }
   
-  writeMetadata(doc,metadataFile)
+  #Finds sampleId and glstring from HML file
+  sampleID <- strsplit(hml.name,"_")[[1]][2]
+  glstring <- trimws(xpathApply(doc,"//glstring",xmlValue))
   
-  if(output == 1){
+  #Writes all other data to a data.txt file
+  writeMetadata(doc,data_file_name)
+  
+  #Writes genos file(s) depending on output type
+  if(output_type == 1){
+    #Write multiple genos files for each loci
     writeGenos1(locus,sampleID,glstring)
-  }else if(output == 2){
+  }else if(output_type == 2){
+    #Write a single genos.txt file for all loci
     writeGenos2(locus,sampleID,glstring)
   }
 }
 
+#Writes all data besides sampleId, glstring and locus to a text file
+#In the future this may need to be adjusted to accomidate multiple HML files with different metadata
 writeMetadata <- function(doc,metadataFile){
   file <- paste(printDir,metadataFile,sep="")
-  file.remove(file)
+  if(file.exists(file)){
+    file.remove(file)
+  }
   nodes <- getNodeSet(doc,"//*",namespaces = xmlNamespaceDefinitions(doc,simplify = TRUE))
   for(i in 1:length(nodes)){
     temp <- xmlAttrs(nodes[[i]])
@@ -41,13 +78,15 @@ writeMetadata <- function(doc,metadataFile){
   }
 }
 
-
+#Writes a seperate genos file for each locus, named genos_LOCUS.txt, containing each sample and corresponding glstrings
 writeGenos1 <- function(locus,sampleID,glstring){
   line <- paste(sampleID, glstring)
   fileName <- paste(printDir,"genos_",locus,".txt",sep="")
   write(line,fileName,append = TRUE)
 }
 
+#Writes one genos.txt file which contains samples for all loci, 
+#Multiple loci for a given sample with have their glstrings appended by ~
 writeGenos2 <- function(locus,sampleID,glstring){
   fileName <- paste(printDir,"genos.txt",sep="")
   if(!file.exists(fileName)){
@@ -73,23 +112,6 @@ writeGenos2 <- function(locus,sampleID,glstring){
   }
   
 }
-
-readFiles <- function(){
-  
-  tempFiles <- list.files("hml",full=TRUE)
-  
-  if(file.exists("prints/genos.txt")){
-    file.remove("prints/genos.txt")
-  }
-  for(file in tempFiles){
-    readHML(file.path(file),"data.txt") 
-  }
-  
-}
-
-readFiles()
-
-
 
 
 
