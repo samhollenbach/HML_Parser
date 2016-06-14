@@ -71,7 +71,7 @@ writeMetadata <- function(doc,metadataFile){
         if(names(temp)[j] == "locus"){
           break
         }
-        str <- paste(names(temp)[j]," = \"",temp[[j]],"\"", sep = "")
+        str <- paste0(names(temp)[j]," = \"",temp[[j]],"\"")
         write(str,file,append = TRUE)
       }
     }
@@ -81,14 +81,14 @@ writeMetadata <- function(doc,metadataFile){
 #Writes a seperate genos file for each locus, named genos_LOCUS.txt, containing each sample and corresponding glstrings
 writeGenos1 <- function(locus,sampleID,glstring){
   line <- paste(sampleID, glstring)
-  fileName <- paste(printDir,"genos_",locus,".txt",sep="")
+  fileName <- paste0(printDir,"genos_",locus,".txt")
   write(line,fileName,append = TRUE)
 }
 
 #Writes one genos.txt file which contains samples for all loci, 
 #Multiple loci for a given sample with have their glstrings appended by ~
 writeGenos2 <- function(locus,sampleID,glstring){
-  fileName <- paste(printDir,"genos.txt",sep="")
+  fileName <- paste0(printDir,"genos.txt")
   if(!file.exists(fileName)){
     file.create(fileName)
   }
@@ -100,7 +100,7 @@ writeGenos2 <- function(locus,sampleID,glstring){
     }
     sub <- substr(lines[lineNum],1,8)
     if(sampleID == sub){
-      lines[lineNum] <- paste(lines[lineNum],"~",glstring,sep="")
+      lines[lineNum] <- paste0(lines[lineNum],"~",glstring)
       writeLines(lines,fileName)
       appended <- TRUE
       break
