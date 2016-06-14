@@ -1,4 +1,5 @@
 library(shiny)
+library(shinyFiles)
 
 setwd(dirname(parent.frame(2)$ofile))
 
@@ -6,57 +7,84 @@ source("script1.R")
 
 ui <- fluidPage(
   
-  checkboxGroupInput(inputId = "loci", label = h3("Select Loci"),
-                     choices=list("3DL2","3DL3"), selected = c("3DL2","3DL3")),
+  titlePanel(h2("HML Parser")),
   
   hr(),
   
-  radioButtons(inputId = "print", label = "Choose Output Type", 
-               choices = list("Seperate loci files"=1, "Single file with combined loci"=2),selected = 1),
+  sidebarLayout(
   
-  fileInput(inputId = "file", label = "Choose HML Files", multiple = TRUE ,accept = '.xml'),
+    sidebarPanel(
+      checkboxGroupInput(inputId = "loci", label = h4("Select Accepted Loci"),
+                     choices=list("3DL2","3DL3"), selected = c("3DL2","3DL3")),
+      hr(),
   
-  verbatimTextOutput('tb')
+      radioButtons(inputId = "print", label = h4("Choose Output Type"), 
+               choices = list("Seperate loci files"=1, "Single file with combined loci"=2),selected = 1)
+    ),
+    mainPanel(
+      shinyDirButton('directory', label = "Choose HML Files to Parse", title="Select directory containing your HML files"),
+      hr(),
+      verbatimTextOutput('tb')
+    )
+  )
 )
 
-server <- function(input, output){
+server <- shinyServer(function(input, output, session){
   
+  roots = c(wd='.')
+  
+  shinyDirChoose(input,'directory',session=session,roots=roots)
   
   
   data <- reactive({
     locus <- input$loci
     out_type <- input$print
     
-    fileNames <- input$file[['name']]
-    
-    if(is.null(fileNames)){
+    if(is.null(input$directory)){
       return(NULL)
     }
-    file.copy(input$file[['datapath']], paste0("tmp/", input$file[['name']]))
     
-    returnValue(fileNames)
+    dir <- parseDirPath(roots,input$directory)
     
-    
-    
-    run.parser(list.files("tmp",full=TRUE),out_type,locus)
-  })
-  
-  #run.parser(inFiles,out_type,loci)
-  
-  
-  output$tb <- renderPrint({
-    if(is.null(data())){
-      
+    if(is.null(dir)){
+      return(NULL)
     }
-    data()
+    
+    observe(print(dir))
+    files <- list.files(dir,full=TRUE,pattern = ".xml")
+    
+    if(is.null(files)){
+      return(NULL)
+    }
+    
+    if(length(files) > 0){
+      run.parser(files,out_type,locus)
+    }
+    
+    
+    return(files)
+    
+    
+    
   })
   
   
-  #SO RIGHT NOW IT CREATES THE FILES FROM ALL THE TEMP FILES STORED IN /tmp SO NEED TO FIND A WAY TO UNLOAD/KEEP WHICH ONES I WAN
-  #BUT GOOD JOB SO FAR :D
+  output$tb <- renderText({
+    if(is.null(data())){
+      return("No Directory Selected")
+    }
+    if(length(data()) == 0){
+      return("Directory contains no .xml files, nothing to parse")
+    }else{
+      return(paste0(length(data()), " .xml file(s) selected and parsed"))
+    }
+    
+    
+  })
   
   
-}
+  
+})
 
 shinyApp(server = server, ui = ui)
 
