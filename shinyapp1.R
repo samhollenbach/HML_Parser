@@ -11,13 +11,10 @@ lociChoices <- c('KIR2DL1','KIR2DL2/3','KIR2DL4','KIR2DL5','KIR2DS1','KIR2DS2',
 
 ui <- fluidPage(
   theme = shinytheme("spacelab"),
-                
-  
-                
   
   titlePanel(
-    strong(tags$u(style="color:darkred","HML Parser"))),
-  
+    strong(tags$u(style="color:darkred","HML Parser"))
+  ),
   
   hr(),
   
@@ -25,12 +22,8 @@ ui <- fluidPage(
   
     #Sidebar panel contains acceptable locus checkboxes and output type buttons
     sidebarPanel(
-      
-      
-      
       checkboxGroupInput(inputId = "loci", label = h4(em("Select Accepted Loci")),
                      choices=lociChoices, selected = lociChoices),
-      #hr(),
       radioButtons(inputId = "print", label = h4(em("Choose Output Type")), 
                choices = list("Seperate loci files"=1, "Single file with combined loci"=2),selected = 1)
       
@@ -44,7 +37,7 @@ ui <- fluidPage(
       verbatimTextOutput('tb'),
       hr(),
       tags$div(
-        h2("What is This?"),
+        h3("What is This?"),
         
         tags$span(
           HTML(paste0(tags$strong(tags$u(style="color:darkred","HML Parser")), " reads in a folder of HML files and parses them into output text files. 
@@ -53,14 +46,13 @@ ui <- fluidPage(
         ),
         tags$a(href="https://github.com/samhollenbach/HML_Parser","https://github.com/samhollenbach/HML_Parser"),
         
-        h4("Accepted Loci"),
+        h4(HTML(paste0("How to use ", tags$strong(tags$u(style="color:darkred","HML Parser"))))),
         tags$span(
-          p("Only HML files with a locus matching one of the selected loci will be parsed.")
-        ),
-        
-        
-        h4("Output Type"),
-        tags$span(
+          HTML(paste0("• Select desired folder containing one or more HML files.")),
+          tags$br(),
+          HTML(paste0("• Only HML files with a locus matching one of the selected loci will be parsed.")),
+          
+          tags$br(),
           HTML(paste0("• Selecting ",strong("Seperate Loci Files"), " will create multiple \"genos_", em("locus"), 
                       ".txt\" files for each unique locus read from the HML files, containing a list of ", em("samples"),
                       " and corresponding ", em("glstrings."))),
@@ -78,8 +70,9 @@ server <- shinyServer(function(input, output, session){
   
   roots = c(wd='.')
   
+  
   #Controls the shinyFiles directory chooser
-  shinyDirChoose(input,'directory',session=session,roots=roots)
+  shinyDirChoose(input,id='directory',session=session,roots=roots)
   
   #Reactive function which controls the 3 variables (files, out_type, locus)
   data <- reactive({
@@ -92,6 +85,7 @@ server <- shinyServer(function(input, output, session){
     if(is.null(input$directory)){
       return(NULL)
     }
+    
     
     #Gets selected directory and returns NULL if the directory is NULL
     dir <- parseDirPath(roots,input$directory)
@@ -125,9 +119,7 @@ server <- shinyServer(function(input, output, session){
       return(paste0(length(data()), " .xml file(s) selected and parsed"))
     }
     
-    
   })
-  
   
   
 })
