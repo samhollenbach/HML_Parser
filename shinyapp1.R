@@ -16,14 +16,14 @@ ui <- fluidPage(
   
   hr(),
   
-  sidebarLayout(
+  sidebarLayout(position = 'right',
     
     #Sidebar panel contains acceptable locus checkboxes and output type buttons
     sidebarPanel(
-      checkboxGroupInput(inputId = "loci", label = h4(em("Select Accepted Loci")),
-                         choices=lociChoices, selected = lociChoices),
       radioButtons(inputId = "print", label = h4(em("Choose Output Type")), 
-                   choices = list("Seperate loci files"=1, "Single file with combined loci"=2),selected = 1)
+                   choices = list("Seperate loci files"=1, "Single file with combined loci"=2),selected = 1),
+      checkboxGroupInput(inputId = "loci", label = h4(em("Select Accepted Loci")),
+                         choices=lociChoices, selected = lociChoices)
       
     ),
     
@@ -32,32 +32,47 @@ ui <- fluidPage(
       h2("Choose HML Files to Parse"),
       shinyDirButton('directory', label = "Choose Directory", title="Select directory containing your HML files"),
       hr(),
+      # tags$br(),
+      # tags$br(),
       verbatimTextOutput('tb'),
       hr(),
       tags$div(
         h3("What is This?"),
         
-        tags$span(
-          HTML(paste0(tags$strong(tags$u(style="color:darkred","HML Parser")), " reads in a folder of HML files and parses them into output text files. 
-                      This Shiny app was created by Sam Hollenbach under the supervision of Jill Hollenbach for ", 
-                      em(style = "color:darkblue","UCSF Department of Neuroscience"), ". For more information see:"))
+        HTML(paste0(em("Histoimmunogenetics Markup Language (HML)"),
+                      " is a type of XML file specifically used for electronically transmitting HLA testing data.",
+                      tags$strong(tags$u(style="color:darkred","HML Parser")), 
+                      " reads in a folder of HML files and parses them into output text files.
+                      Used in conjunction with ", tags$span(tags$a(href="https://github.com/jillah/HML", "HML Maker")),
+                      ", transmitting HLA testing data is incredibly streamlined and intuitive.")
         ),
-        tags$a(href="https://github.com/samhollenbach/HML_Parser","https://github.com/samhollenbach/HML_Parser"),
+        
+        tags$br(),
+        tags$br(),
+        HTML(paste0("This RStudio Shiny app was created by Sam Hollenbach, June 2016, under the supervision of Jill Hollenbach for ", 
+                    strong(style = "color:darkblue","UCSF Department of Neurology"))
+        ),
+        
+        
+        tags$br(),
+        tags$br(),
+        tags$span("For more information see "),
+        tags$a(href="https://github.com/samhollenbach/HML_Parser","https://github.com/samhollenbach/HML_Parser."),
+        tags$br(),
+        tags$br(),
         
         h4(HTML(paste0("How to use ", tags$strong(tags$u(style="color:darkred","HML Parser"))))),
         tags$span(
-          HTML(paste0("-Select desired folder containing one or more HML files.")),
-          tags$br(),
-          HTML(paste0("-Only HML files with a locus matching one of the selected loci will be parsed.")),
-          
-          tags$br(),
-          HTML(paste0("-Selecting ",strong("Seperate Loci Files"), " will create multiple \"genos_", em("locus"), 
-                      ".txt\" files for each unique locus read from the HML files, containing a list of ", em("samples"),
-                      " and corresponding ", em("glstrings."))),
-          tags$br(),
-          HTML(paste0("-Selecting ",strong("Single file with combined loci"), " will create a single file \"genos.txt\ 
+          tags$li(HTML(paste0("Select desired folder containing one or more HML files."))),
+          tags$li(HTML(paste0("Selecting ",strong("Seperate loci files"), " will create multiple \'genos_", em("locus"), 
+                      ".txt\' files for each unique locus read from the HML files, containing a list of ", em("samples"),
+                      " and corresponding ", em("glstrings.")))),
+          tags$li(HTML(paste0("Selecting ",strong("Single file with combined loci"), " will create a single file \'genos.txt\' 
                       containing a list of each unique ", em("sample"), " followed by ", em("glstrings"), " from each available ",
-                      em("locus"),  ", appended by ~."))
+                      em("locus"),  ", appended by ~."))),
+          tags$li(HTML(paste0("Both options produce a \'metadata.txt\' file containing all other data from the HML files."))),
+          tags$li(HTML(paste0("Only HML files with a ",
+                              em("locus"), " matching one of the selected loci will be parsed.")))
         )
       )
     )
