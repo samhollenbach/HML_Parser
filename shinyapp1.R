@@ -46,12 +46,12 @@ ui <- fluidPage(
         
         h4(HTML(paste0("How to use ", tags$strong(tags$u(style="color:darkred","HML Parser"))))),
         tags$span(
-          HTML(paste0(". Select desired folder containing one or more HML files.")),
+          HTML(paste0("• Select desired folder containing one or more HML files.")),
           tags$br(),
-          HTML(paste0(". Only HML files with a locus matching one of the selected loci will be parsed.")),
+          HTML(paste0("• Only HML files with a locus matching one of the selected loci will be parsed.")),
           
           tags$br(),
-          HTML(paste0(". Selecting ",strong("Seperate Loci Files"), " will create multiple \"genos_", em("locus"), 
+          HTML(paste0("• Selecting ",strong("Seperate Loci Files"), " will create multiple \"genos_", em("locus"), 
                       ".txt\" files for each unique locus read from the HML files, containing a list of ", em("samples"),
                       " and corresponding ", em("glstrings."))),
           tags$br(),
