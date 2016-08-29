@@ -10,7 +10,6 @@ printDir <- "prints/"
 #Main run function
 #Accepts a list of files, an output type (1 or 2), and a list of accepted loci
 run.parser <- function(files,output_type,accepted_loci){
-  
   if(file.exists(paste0(printDir,"genos.txt")) && (output_type == 2)){
     file.remove(paste0(printDir,"genos.txt"))
   }

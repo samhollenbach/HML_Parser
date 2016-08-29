@@ -10,6 +10,8 @@ lociChoices <- c('KIR2DL1','KIR2DL2/3','KIR2DL4','KIR2DL5','KIR2DS1','KIR2DS2',
 
 ui <- fluidPage(
   
+  #includeCSS("www/style1.css"),
+  
   titlePanel(
     strong(tags$u(style="color:darkred","HML Parser"))
   ),
@@ -18,6 +20,8 @@ ui <- fluidPage(
   
   sidebarLayout(position = 'right',
     
+                
+                
     #Sidebar panel contains acceptable locus checkboxes and output type buttons
     sidebarPanel(
       radioButtons(inputId = "print", label = h4(em("Choose Output Type")), 
@@ -25,13 +29,14 @@ ui <- fluidPage(
       checkboxGroupInput(inputId = "loci", label = h4(em("Select Accepted Loci")),
                          choices=lociChoices, selected = lociChoices)
       
+      
     ),
-    
     #Main panel contains Choose Directory button and text output
     mainPanel(
       h2("Choose HML Files to Parse"),
       shinyDirButton('directory', label = "Choose Directory", title="Select directory containing your HML files"),
       hr(),
+     
       # tags$br(),
       # tags$br(),
       verbatimTextOutput('tb'),
